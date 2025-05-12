@@ -864,7 +864,7 @@ impl WindowOps for Window {
     fn config_did_change(&self, config: &ConfigHandle) {
         let config = config.clone();
         Connection::with_window_inner(self.id, move |inner| {
-            inner.config_did_change(&config);
+            inner.config_did_change(config);
             Ok(())
         });
     }
@@ -1338,11 +1338,10 @@ impl WindowInner {
         }
     }
 
-    fn config_did_change(&mut self, config: &ConfigHandle) {
+    fn config_did_change(&mut self, config: ConfigHandle) {
         let dpi_changed =
             self.config.dpi != config.dpi || self.config.dpi_by_screen != config.dpi_by_screen;
 
-        self.config = config.clone();
         if let Some(window_view) = WindowView::get_this(unsafe { &**self.view }) {
             let mut inner = window_view.inner.borrow_mut();
             inner.config = config.clone();
@@ -1354,6 +1353,7 @@ impl WindowInner {
         self.update_window_background_blur();
         self.update_titlebar_background();
         self.apply_decorations();
+        self.config = config;
     }
 }
 

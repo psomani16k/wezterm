@@ -1694,15 +1694,15 @@ impl XWindowInner {
         self.set_fullscreen_hint(!fullscreen).ok();
     }
 
-    fn config_did_change(&mut self, config: &ConfigHandle) {
+    fn config_did_change(&mut self, config: ConfigHandle) {
         let dpi_changed =
             self.config.dpi != config.dpi || self.config.dpi_by_screen != config.dpi_by_screen;
-        self.config = config.clone();
         let _ = self.adjust_decorations(config.window_decorations);
 
         if dpi_changed {
             let _ = self.configure_notify("config reload", self.width, self.height);
         }
+        self.config = config;
     }
 
     fn net_wm_moveresize(&mut self, x_root: u32, y_root: u32, direction: u32, button: u32) {
@@ -2009,7 +2009,7 @@ impl WindowOps for XWindow {
     fn config_did_change(&self, config: &ConfigHandle) {
         let config = config.clone();
         XConnection::with_window_inner(self.0, move |inner| {
-            inner.config_did_change(&config);
+            inner.config_did_change(config);
             Ok(())
         });
     }
